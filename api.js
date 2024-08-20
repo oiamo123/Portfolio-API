@@ -79,12 +79,9 @@ app.get("/api/skills", async (req, res) => {
 
 app.post("/api/resume", validateRecaptcha, async (req, res) => {
   try {
-    const images = await Images.find({
-      $or: [{ for: "resume" }, { for: "coverletter" }],
-    }).lean();
+    const images = await Images.find({ for: "resume" }).lean();
 
     const resume = await images.find((img) => img.for === "resume");
-    const coverletter = await images.find((img) => img.for === "coverletter");
 
     if (!resume || !coverletter) {
       res
@@ -92,7 +89,7 @@ app.post("/api/resume", validateRecaptcha, async (req, res) => {
         .json({ message: "There was an issue retrieving the images" });
     }
 
-    res.status(200).json({ resume, coverletter });
+    res.status(200).json({ resume });
   } catch (err) {
     res.status(400).json({ message: "An error occured" });
   }
