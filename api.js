@@ -19,16 +19,17 @@ const limiter = rateLimit({
 
 const allowedOrigins = {
   development: "http://localhost:4321",
-  production: "https://goiamo.dev/",
+  production: "https://goiamo.dev",
 };
 
 const app = express();
 app.use(limiter);
 app.use(
   cors({
-    origin: allowedOrigins[process.env.ENV],
-    methods: ["GET", "POST"],
-    allowedHeaders: "Content-Type,Authorization",
+    origin: allowedOrigins[process.env.ENV] || "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 app.use(express.urlencoded());
@@ -46,6 +47,9 @@ const Data = require("./models/Data.js");
 mongoose.connect(process.env.URI).then(() => {
   console.log("Connected to MongoDB Atlas");
 });
+
+// handle pre-flight
+app.options("*", cors());
 
 // routes
 app.get("/api/images", async (req, res) => {
