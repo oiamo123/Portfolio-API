@@ -19,7 +19,7 @@ const limiter = rateLimit({
 
 const allowedOrigins = {
   development: "http://localhost:4321",
-  production: "https://api.goiamo.dev",
+  production: "https://goiamo.dev/",
 };
 
 const app = express();
