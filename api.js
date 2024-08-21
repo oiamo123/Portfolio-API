@@ -17,12 +17,22 @@ const limiter = rateLimit({
   limit: 100,
 });
 
+const allowedOrigins = {
+  development: "http://localhost:4321",
+  production: "https://goiamo.dev",
+};
+
 const app = express();
 app.use(limiter);
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins[process.env.ENV],
+    methods: ["GET", "POST"],
+    allowedHeaders: "Content-Type,Authorization",
+  })
+);
 app.use(express.urlencoded());
 app.use(express.json());
-app.set("trust proxy", true);
 dotenv.config();
 
 const Projects = require("./models/Projects.js");
@@ -192,13 +202,21 @@ app.post(
       });
 
       const mailOptions = {
-        from: email,
+        from: `${email}`,
         to: process.env.EMAIL,
-        subject: `${name} - Portfolio`,
+        subject: `${name} ${email} - Portfolio`,
         text: message,
       };
 
+      const mailOptionsConfirmation = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: "Gavin Oiamo - Confirmation",
+        text: "Thank you for reaching out! This is just to confirm that I received your email. I will get back to you as soon as possible. \n \n - Gavin",
+      };
+
       await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptionsConfirmation);
 
       res.status(200).json({ message: "Email successfully sent" });
     } catch (error) {
