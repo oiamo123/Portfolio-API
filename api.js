@@ -22,6 +22,7 @@ app.use(limiter);
 app.use(cors());
 app.use(express.urlencoded());
 app.use(express.json());
+app.set("trust proxy", true);
 dotenv.config();
 
 const Projects = require("./models/Projects.js");
