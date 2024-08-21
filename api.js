@@ -81,15 +81,13 @@ app.post("/api/resume", validateRecaptcha, async (req, res) => {
   try {
     const images = await Images.find({ for: "resume" }).lean();
 
-    const resume = await images.find((img) => img.for === "resume");
-
-    if (!resume || !coverletter) {
+    if (!images) {
       res
         .status(400)
         .json({ message: "There was an issue retrieving the images" });
     }
 
-    res.status(200).json({ resume });
+    res.status(200).json(images);
   } catch (err) {
     res.status(400).json({ message: "An error occured" });
   }
