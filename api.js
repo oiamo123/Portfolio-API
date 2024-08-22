@@ -23,6 +23,8 @@ const allowedOrigins = {
 };
 
 const app = express();
+app.set("trust proxy", 1);
+
 app.use(limiter);
 app.use(
   cors({
@@ -46,6 +48,10 @@ const Data = require("./models/Data.js");
 // middleware
 mongoose.connect(process.env.URI).then(() => {
   console.log("Connected to MongoDB Atlas");
+});
+
+app.get("/ip", (req, res) => {
+  res.status(200).json(req.ip);
 });
 
 // handle pre-flight
