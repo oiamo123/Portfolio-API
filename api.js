@@ -152,30 +152,20 @@ app.post(
     const message = req.body.message;
 
     const data = await Data.find({
-      for: { $in: ["ClientID", "ClientSecret", "RefreshToken"] },
+      for: { $in: ["ClientID", "ClientSecret"] },
     });
 
     const { clientID, clientSecret, refreshToken } = {
       clientID: data.find((item) => item.for === "ClientID"),
       clientSecret: data.find((item) => item.for === "ClientSecret"),
-      refreshToken: data.find((item) => item.for === "RefreshToken"),
     };
 
-    const [
-      clientIDKeydecrypted,
-      clientSecretKeyDecrypted,
-      refreshTokenKeyDecrypted,
-    ] = await Promise.all([
+    const [clientIDKeydecrypted, clientSecretKeyDecrypted] = await Promise.all([
       decrypt(clientID.for, clientID.key),
       decrypt(clientSecret.for, clientSecret.key),
-      decrypt(refreshToken.for, refreshToken.key),
     ]);
 
-    if (
-      !clientIDKeydecrypted ||
-      !clientSecretKeyDecrypted ||
-      !refreshTokenKeyDecrypted
-    ) {
+    if (!clientIDKeydecrypted || !clientSecretKeyDecrypted) {
       throw new Error("Unable to retrieve necessary credentials");
     }
 
@@ -187,7 +177,7 @@ app.post(
       );
 
       await oauth2Client.setCredentials({
-        refresh_token: refreshTokenKeyDecrypted,
+        refresh_token: process.env.REFRESH_TOKEN,
       });
 
       const accessToken = await oauth2Client
@@ -202,7 +192,7 @@ app.post(
           accessToken: accessToken,
           clientId: clientIDKeydecrypted,
           clientSecret: clientSecretKeyDecrypted,
-          refreshToken: refreshTokenKeyDecrypted,
+          refreshToken: process.env.REFRESH_TOKEN,
         },
       });
 
@@ -225,6 +215,7 @@ app.post(
 
       res.status(200).json({ message: "Email successfully sent" });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: "An error occurred" });
     }
   }

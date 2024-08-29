@@ -50,37 +50,43 @@ const validateSchema = function (schema) {
 };
 
 const validateRecaptcha = async function (req, res, next) {
-  const apiKey = await Data.findOne({ for: "APIKey" }).lean();
-  const apiKeyDecrypted = await decrypt("APIKey", apiKey.key);
+  try {
+    const apiKey = await Data.findOne({ for: "APIKey" }).lean();
+    const apiKeyDecrypted = await decrypt("APIKey", apiKey.key);
 
-  const request = {
-    event: {
-      token: req.body.token,
-      expectedAction: "submit",
-      siteKey: process.env.SITE_KEY,
-    },
-  };
-
-  const recaptchaResponse = await fetch(
-    `https://recaptchaenterprise.googleapis.com/v1/projects/numeric-camp-431804-f4/assessments?key=${apiKeyDecrypted}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const request = {
+      event: {
+        token: req.body.token,
+        expectedAction: "submit",
+        siteKey: process.env.SITE_KEY,
       },
-      body: JSON.stringify(request),
+    };
+
+    const recaptchaResponse = await fetch(
+      `https://recaptchaenterprise.googleapis.com/v1/projects/numeric-camp-431804-f4/assessments?key=${apiKeyDecrypted}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      }
+    );
+
+    const response = await recaptchaResponse.json();
+
+    console.log(response);
+
+    if (response.riskAnalysis.score <= 0.3) {
+      res.status(400).json({
+        message:
+          "Sorry, your request can't be processed right now due to suspicious activity.",
+      });
+    } else {
+      next();
     }
-  );
-
-  const response = await recaptchaResponse.json();
-
-  if (response.riskAnalysis.score <= 0.3) {
-    res.status(400).json({
-      message:
-        "Sorry, your request can't be processed right now due to suspicious activity.",
-    });
-  } else {
-    next();
+  } catch (err) {
+    res.status(400).json({ message: "There appears to be an issue..." });
   }
 };
 
