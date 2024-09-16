@@ -151,53 +151,52 @@ app.post(
     const email = req.body.email;
     const message = req.body.message;
 
-    const data = await Data.find({
-      for: { $in: ["ClientID", "ClientSecret"] },
-    });
-
-    const { clientID, clientSecret, refreshToken } = {
-      clientID: data.find((item) => item.for === "ClientID"),
-      clientSecret: data.find((item) => item.for === "ClientSecret"),
-    };
-
-    const [clientIDKeydecrypted, clientSecretKeyDecrypted] = await Promise.all([
-      decrypt(clientID.for, clientID.key),
-      decrypt(clientSecret.for, clientSecret.key),
-    ]);
-
-    if (!clientIDKeydecrypted || !clientSecretKeyDecrypted) {
-      throw new Error("Unable to retrieve necessary credentials");
-    }
-
     try {
-      const oauth2Client = await new google.auth.OAuth2(
-        clientIDKeydecrypted,
+      // Retrieve and decrypt credentials
+      const data = await Data.find({
+        for: { $in: ["ClientID", "ClientSecret"] },
+      });
+      const { clientID, clientSecret } = {
+        clientID: data.find((item) => item.for === "ClientID"),
+        clientSecret: data.find((item) => item.for === "ClientSecret"),
+      };
+
+      const [clientIDKeyDecrypted, clientSecretKeyDecrypted] =
+        await Promise.all([
+          decrypt(clientID.for, clientID.key),
+          decrypt(clientSecret.for, clientSecret.key),
+        ]);
+
+      if (!clientIDKeyDecrypted || !clientSecretKeyDecrypted) {
+        throw new Error("Unable to retrieve necessary credentials");
+      }
+
+      const oauth2Client = new google.auth.OAuth2(
+        clientIDKeyDecrypted,
         clientSecretKeyDecrypted,
         process.env.REDIRECT_URI
       );
 
-      await oauth2Client.setCredentials({
+      oauth2Client.setCredentials({
         refresh_token: process.env.REFRESH_TOKEN,
       });
 
-      const accessToken = await oauth2Client
-        .getRequestHeaders()
-        .then((headers) => headers["Authorization"].split(" ")[1]);
+      const accessToken = await oauth2Client.getAccessToken();
 
-      const transporter = await nodemailer.createTransport({
+      const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
           type: "OAuth2",
           user: process.env.EMAIL,
-          accessToken: accessToken,
-          clientId: clientIDKeydecrypted,
+          accessToken: accessToken.token,
+          clientId: clientIDKeyDecrypted,
           clientSecret: clientSecretKeyDecrypted,
           refreshToken: process.env.REFRESH_TOKEN,
         },
       });
 
       const mailOptions = {
-        from: `${email}`,
+        from: email,
         to: process.env.EMAIL,
         subject: `${name} ${email} - Portfolio`,
         text: message,
@@ -210,12 +209,14 @@ app.post(
         text: "Thank you for reaching out! This is just to confirm that I received your email. I will get back to you as soon as possible. \n \n - Gavin",
       };
 
-      await transporter.sendMail(mailOptions);
-      await transporter.sendMail(mailOptionsConfirmation);
+      await Promise.all([
+        transporter.sendMail(mailOptions),
+        transporter.sendMail(mailOptionsConfirmation),
+      ]);
 
       res.status(200).json({ message: "Email successfully sent" });
     } catch (error) {
-      console.log(error);
+      console.error("Error sending email:", error);
       res.status(500).json({ message: "An error occurred" });
     }
   }

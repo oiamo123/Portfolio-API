@@ -62,6 +62,8 @@ const validateRecaptcha = async function (req, res, next) {
       },
     };
 
+    console.log(apiKeyDecrypted);
+
     const recaptchaResponse = await fetch(
       `https://recaptchaenterprise.googleapis.com/v1/projects/numeric-camp-431804-f4/assessments?key=${apiKeyDecrypted}`,
       {
@@ -75,8 +77,6 @@ const validateRecaptcha = async function (req, res, next) {
 
     const response = await recaptchaResponse.json();
 
-    console.log(response);
-
     if (response.riskAnalysis.score <= 0.3) {
       res.status(400).json({
         message:
@@ -86,6 +86,8 @@ const validateRecaptcha = async function (req, res, next) {
       next();
     }
   } catch (err) {
+    console.log(err);
+    console.log(req);
     res.status(400).json({ message: "There appears to be an issue..." });
   }
 };
