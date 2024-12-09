@@ -93,22 +93,6 @@ app.get("/api/skills", async (req, res) => {
   }
 });
 
-app.post("/api/resume", validateRecaptcha, async (req, res) => {
-  try {
-    const images = await Images.find({ for: "resume" }).lean();
-
-    if (!images) {
-      res
-        .status(400)
-        .json({ message: "There was an issue retrieving the images" });
-    }
-
-    res.status(200).json(images);
-  } catch (err) {
-    res.status(400).json({ message: "An error occured" });
-  }
-});
-
 app.get("/api/projects", async (req, res) => {
   try {
     // get projects, tools and project tools
