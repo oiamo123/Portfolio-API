@@ -62,8 +62,6 @@ const validateRecaptcha = async function (req, res, next) {
       },
     };
 
-    console.log(apiKeyDecrypted);
-
     const recaptchaResponse = await fetch(
       `https://recaptchaenterprise.googleapis.com/v1/projects/numeric-camp-431804-f4/assessments?key=${apiKeyDecrypted}`,
       {
@@ -74,6 +72,8 @@ const validateRecaptcha = async function (req, res, next) {
         body: JSON.stringify(request),
       }
     );
+
+    console.log(recaptchaResponse);
 
     const response = await recaptchaResponse.json();
 
