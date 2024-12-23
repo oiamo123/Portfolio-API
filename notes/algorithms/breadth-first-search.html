@@ -1,0 +1,188 @@
+<h1>Breadth-First Search</h1>
+<p>
+  Breadth-First Search (BFS) is a fundamental algorithm commonly used in graphs
+  and trees. It forms the backbone of more advanced algorithms like Dijkstra's
+  and A*. BFS is versatile, with applications such as detecting cycles in
+  directed and undirected graphs, making it an essential tool in computer
+  science.
+</p>
+<p>
+  Imagine you're researching your family tree. You have two parents, each of
+  your parents has two parents, and so on. You could explore your ancestry in
+  one of two ways:
+</p>
+<ul>
+  <li>
+    <b>By path:</b> Start with your mom, then your mom's mom, then your mom's
+    mom's mom, and so on.
+  </li>
+  <li>
+    <b>By layers:</b> Start with your parents, then move to your grandparents,
+    then your great-grandparents, layer by layer.
+  </li>
+</ul>
+<p>
+  The first method is an example of <b>Depth-First Search (DFS)</b>, where you
+  go as deep as possible along one path before backtracking. The second method
+  is an example of <b>Breadth-First Search (BFS)</b>, where you explore all the
+  "neighbors" (parents) at the current layer before moving on to the next layer
+  (grandparents). BFS focuses on layers rather than individual paths.
+</p>
+<h1>Applying BFS</h1>
+<p>
+  How do we process a tree layer by layer programatically? This is where a Queue
+  comes in handy. A queue is a FIFO (First-In, First-Out) data-structure that
+  processes the oldest data first. Taking a look at this tree:
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_170342_m2dwrk.png"
+  alt="A tree with nodes 1 through 7 in a hierarchical structure"
+/>
+<p>Starting off, we want to add the starting node (1) to a queue.</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171109_vqcppb.png"
+  alt="Queue initialized with node 1"
+/>
+<p>
+  We can then pull the first item from the queue (1) and add it's neighbours into
+  the queue (2, 3).
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171205_rwoyzk.png"
+  alt="Queue with node 1 gone and it's neighbours added, 2 and 3"
+/>
+<p>
+  Then we can pull 2 from the queue and add it's neighbours (4, 5) to the queue.
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171342_wztdty.png"
+  alt="Queue with node 2 gone and it's neighbours added, 4 and 5"
+/>
+<p>
+  And finally we can pull 3 from the queue and add it's neighbours (6, 7) to the
+  queue.
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171508_lqya2t.png"
+  alt="Queue with node 3 gone and it's neighbours added, 6 and 7"
+/>
+<p>
+  In summary, BFS explores each layer of a graph or tree systematically using a
+  queue, ensuring all nodes at the current level are processed before moving
+  deeper. This makes it an ideal algorithm for tasks requiring a shortest-path
+  search or layered exploration.
+</p>
+<h2>The Code</h2>
+<p>Coding this out in a tree, we want to follow this pseudocode:</p>
+<ul>
+    <li>Add the starting node to the queue</li>
+    <li>While the queue is not empty</li>
+    <li>Pop the first node from the queue</li>
+    <li>Add the nodes neighbours to the queue</li>
+</ul>
+<p>For this example, I'm also going to use a custom Node class that has left and right pointers.</p>
+<div class="code">
+    <ul class="tabs">
+        <li class="active">Java</li>
+        <li>Python</li>
+        <li>JavaScript</li>
+    </ul>
+    <div class="code-content">
+        <pre class="active">
+    public class Node {
+        public int value;
+        public Node left;
+        public Node right;
+
+        public Node(int value) {
+            this.value = value;
+        }
+    }
+    
+    public void BFS(Node start) {
+        // Initialize the queue
+        Queue<Node> queue = new LinkedList<>();
+
+        // Add the start node to the queue
+        queue.add(start);
+
+        // Process the nodes in the queue until it's empty
+        while (!queue.isEmpty()) {
+            // Remove the first node from the queue and process it
+            Node current = queue.poll();
+
+            // Print the value
+            System.out.print(current.value + " ");
+
+            // Add the neighbours to the queue
+            if (current.left!= null) {
+                queue.add(current.left);
+            }
+
+            if (current.right!= null) {
+                queue.add(current.right);
+            }
+        }
+    }
+        </pre>
+        <pre>
+    class Node:
+        def __init__(self, value):
+            self.value = value
+            self.left = None
+            self.right = None
+
+    def BFS(node):
+        # Initialize the queue
+        queue = [node]
+        # Process the nodes in the queue until it's empty
+        while queue:
+            # Remove the first node from the queue and process it
+            current = queue.pop(0)
+
+            # Print the value
+            print(current.value)
+
+            # Add the neighbours to the queue
+            if current.left:
+                queue.append(current.left)
+
+            if current.right:
+                queue.append(current.right)
+        </pre>
+        <pre>
+    class Node {
+        constructor(value) {
+            this.value = value;
+            this.left = null;
+            this.right = null;
+        }
+    }
+
+    const BFS = function(start) {
+        // Initialize the queue
+        const queue = [];
+        // Add the start node to the queue
+        queue.push(start);
+
+        // Process the nodes in the queue until it's empty
+        while (queue.length > 0) {
+            // Remove the first node from the queue and process it
+            const current = queue.shift();
+
+            // Print the value
+            console.log(current.value);
+
+            // Add the neighbours to the queue
+            if (current.left) {
+                queue.push(current.left);
+            }
+
+            if (current.right) {
+                queue.push(current.right);
+            }
+        }
+    }
+        </pre>
+    </div>
+</div>
