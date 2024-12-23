@@ -1,17 +1,17 @@
-<h1>Breadth-First Search</h1>
-<p>
+<h1 class="roboto-bold">Breadth-First Search</h1>
+<p class="roboto-light">
   Breadth-First Search (BFS) is a fundamental algorithm commonly used in graphs
   and trees. It forms the backbone of more advanced algorithms like Dijkstra's
   and A*. BFS is versatile, with applications such as detecting cycles in
   directed and undirected graphs, making it an essential tool in computer
   science.
 </p>
-<p>
+<p class="roboto-light">
   Imagine you're researching your family tree. You have two parents, each of
   your parents has two parents, and so on. You could explore your ancestry in
   one of two ways:
 </p>
-<ul>
+<ul class="roboto-light">
   <li>
     <b>By path:</b> Start with your mom, then your mom's mom, then your mom's
     mom's mom, and so on.
@@ -21,7 +21,7 @@
     then your great-grandparents, layer by layer.
   </li>
 </ul>
-<p>
+<p class="roboto-light">
   The first method is an example of <b>Depth-First Search (DFS)</b>, where you
   go as deep as possible along one path before backtracking. The second method
   is an example of <b>Breadth-First Search (BFS)</b>, where you explore all the
@@ -29,7 +29,7 @@
   (grandparents). BFS focuses on layers rather than individual paths.
 </p>
 <h1>Applying BFS</h1>
-<p>
+<p class="roboto-light">
   How do we process a tree layer by layer programatically? This is where a Queue
   comes in handy. A queue is a FIFO (First-In, First-Out) data-structure that
   processes the oldest data first. Taking a look at this tree:
@@ -43,7 +43,7 @@
   src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171109_vqcppb.png"
   alt="Queue initialized with node 1"
 />
-<p>
+<p class="roboto-light">
   We can then pull the first item from the queue (1) and add it's neighbours into
   the queue (2, 3).
 </p>
@@ -51,14 +51,14 @@
   src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171205_rwoyzk.png"
   alt="Queue with node 1 gone and it's neighbours added, 2 and 3"
 />
-<p>
+<p class="roboto-light">
   Then we can pull 2 from the queue and add it's neighbours (4, 5) to the queue.
 </p>
 <img
   src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171342_wztdty.png"
   alt="Queue with node 2 gone and it's neighbours added, 4 and 5"
 />
-<p>
+<p class="roboto-light">
   And finally we can pull 3 from the queue and add it's neighbours (6, 7) to the
   queue.
 </p>
@@ -66,21 +66,21 @@
   src="https://res.cloudinary.com/dusakygel/image/upload/v1734915009/Screenshot_2024-12-22_171508_lqya2t.png"
   alt="Queue with node 3 gone and it's neighbours added, 6 and 7"
 />
-<p>
+<p class="roboto-light">
   In summary, BFS explores each layer of a graph or tree systematically using a
   queue, ensuring all nodes at the current level are processed before moving
   deeper. This makes it an ideal algorithm for tasks requiring a shortest-path
   search or layered exploration.
 </p>
-<h2>The Code</h2>
-<p>Coding this out in a tree, we want to follow this pseudocode:</p>
-<ul>
+<h2 class="roboto-bold">The Code</h2>
+<p class="roboto-light">Coding this out in a tree, we want to follow this pseudocode:</p>
+<ul class="roboto-light">
     <li>Add the starting node to the queue</li>
     <li>While the queue is not empty</li>
     <li>Pop the first node from the queue</li>
     <li>Add the nodes neighbours to the queue</li>
 </ul>
-<p>For this example, I'm also going to use a custom Node class that has left and right pointers.</p>
+<p class="roboto-light">For this example, I'm also going to use a custom Node class that has left and right pointers.</p>
 <div class="code">
     <ul class="tabs">
         <li class="active">Java</li>
@@ -186,3 +186,4 @@
         </pre>
     </div>
 </div>
+<p class="roboto-light">In this example, I used BFS on a tree. However in a graph a node may have multiple neighbours instead of just one neighbour. In this case, you would have to add an additional for loop inside of the while loop, that adds all of the nodes neighbours to the queue.</p>
