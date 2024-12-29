@@ -1,0 +1,156 @@
+<h1 class="roboto-bold">Cost Functions</h1>
+<p class="roboto-light">
+  In my last
+  <a
+    post="linear-regression"
+    topic="machine-learning"
+    href="/notes/machine-learning/linear-regression.html"
+    >post</a
+  >, I discussed how the weight (w) and bias (b) were initially chosen
+  arbitrarily. The issue was that the line we had drawn on our graph wasn't the
+  best fit, meaning that our model was inaccurate. This post, as well as my
+  <a
+    post="gradient-descent"
+    topic="machine-learning"
+    href="/notes/machine-learning/gradient-descent.html"
+    >gradient descent</a
+  >
+  post, will cover how the values of <span class="italic bold">w</span> and
+  <span class="italic bold">b</span> can be calculated mathematically to
+  minimize our cost.
+</p>
+<h2 class="roboto-bold">What is cost?</h2>
+<p class="roboto-light">
+  Going back to my linear-regression post, we were using this graph to predict
+  the area of a city based on its population.
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734927660/Screenshot_2024-12-22_212045_li3u2i.png"
+  alt=""
+/>
+<p class="roboto-light">Examining it in more detail:</p>
+<ul class="roboto-light">
+  <li>x-axis: Population</li>
+  <li>y-axis: Area</li>
+  <li>Data points (red dots): A city's area and population</li>
+  <li>Light blue line: Our model's predicted line</li>
+</ul>
+<p class="roboto-light">
+  Cost is a measure of how well our model fits our data. In other words, it's
+  the cumulative "average" of how far off our model's predictions are from the
+  actual data points. The lower the cost, the better our model is at making
+  accurate predictions.
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1735173023/Screenshot_2024-12-25_173016_dvrfyd.png"
+  alt=""
+/>
+<p class="roboto-light">
+  As you can see in this graph, the cost is the difference between the actual
+  data and the predicted value which is represented by the navy blue lines.
+</p>
+<h2 class="roboto-bold">Calculating cost</h2>
+<p class="roboto-light">
+  Before we jump into the cost formula, I wanted to show another method of
+  representing the data above which could be a chart such as this one
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1734927444/Screenshot_2024-12-22_194531_y0wlcs.png"
+  alt=""
+/>
+<p class="roboto-light">Essentially what we have are 2 arrays of data</p>
+<ul class="roboto-light">
+  <li>x (population): [4366508, 337318, 879277, 1133193, 2712205, ...]</li>
+  <li>y (area): [1654, 217, 702, 1030, 2469...]</li>
+</ul>
+<p class="roboto-light">
+  Then to calculate cost, we find the difference between the actual value (y)
+  and the predicted value (f<sub>w, b</sub><sup>(x)</sup>). In other words
+</p>
+<ul class="roboto-light">
+  <li>cost<sup>i</sup> = (wx<sup>i</sup> + b) - y<sup>i</sup></li>
+</ul>
+<p class="roboto-light">
+  where wx + b is the fomula for f<sub>w,b</sub><sup>i</sup> or our predicted
+  value. After we calculate the cost for each item, we divide by the number of
+  items to get the "average".
+</p>
+<p class="roboto-light">
+  <span class="italic">"But why is this important Gavin?"</span> This is because
+  the formula we'll be using, Mean Squared Error (MSE), is calculated very
+  similarly with the only difference being that we square cost<sup>i</sup> and
+  that it has some additional notation.
+</p>
+<img
+  src="https://res.cloudinary.com/dusakygel/image/upload/v1735179927/Screenshot_2024-12-25_192447_oclsek.png"
+  alt=""
+/>
+<ul class="roboto-light">
+  <li>J(w, b): The calculated cost of the current model</li>
+  <li>m: Number of data-points</li>
+  <li>f(x<sup>(i)</sup>): Predicted value in the i<sup>th</sup> position</li>
+  <li>y<sup>i</sup>: Actual value in the i<sup>th</sup> position</li>
+  <li>i: Current item or index</li>
+  <li>∑: The sum of the items that follow</li>
+</ul>
+<p class="roboto-light">
+  Explaining this in a little bit more detail, f(x<sup>i</sup>) is the
+  short-hand for f<sub>w, b</sub><sup>(x)</sup>. In the summation symbol (∑),
+  the m above indicates the ending index, while i = 1 below specifies the
+  starting point. Another thing to note is that instead of calculating the sum
+  and then dividing by the total number of items, the formula uses
+  <sup>1</sup>/<sub>2m</sub>, however dividing by n after calculating the sum is
+  equivalent mathematically.
+</p>
+<p class="roboto-light">
+  You might also be wondering why we square the sum. The reason why is because
+  squaring the cost <span class="bold">amplifies</span> larger errors, ensuring
+  that the formula penalizes significant deviations more heavily than smaller
+  ones.
+</p>
+<h2 class="roboto-bold">Code and visualization</h2>
+<p class="roboto-light">
+  Now that we have a way to calculate cost, we can look at how the cost changes
+  as we manipulate our weight and bias. I recommended it previously in my
+  linear-regression post, but just to reiterate, I suggest you take a look at
+  Google's Interactive Exercise for Cost
+  <a
+    href="https://developers.google.com/machine-learning/crash-course/linear-regression/parameters-exercise"
+    >here</a
+  >. Try to adjust the weight and bias so that the MSE is minimized. Also once
+  again, there isn't much code to show here but nontheless.
+</p>
+<div class="code">
+  <ul class="tabs">
+    <li class="active">Python</li>
+  </ul>
+  <div class="code-content">
+    <pre class="active">
+  # Imports
+  import numpy as np
+      
+  # Training data
+  x = np.array([4366508, 337318, 879277, 1133193, 2712205])
+  y = np.array([1654, 217, 702, 1030, 2469])
+      
+  # Compute total cost
+  def compute_cost(x, y, w, b):
+      m = x.shape[0] # Number of training items
+      
+      cost_sum = 0
+      for i in range(m):
+          f_wb = w * x[i] + b # Calculate fwb(x) for our cost function (fwb - y)
+          cost = (f_wb - y[i]) ** 2 # Calculate the difference
+          cost_sum = cost_sum + cost # Add the difference to the total cost
+      total_cost = (1 / (2 * m)) * cost_sum # Divide the cost by the number of items
+      
+      return total_cost
+  
+  w = 0.0006 # Calculated by eyeballing data in linear regression post
+  b = 0
+  cost = compute_cost(x_train, y_train, 80, 100)
+  print(cost)
+  # You can adjust w and b to see if you can get a smaller value
+    </pre>
+  </div>
+</div>
