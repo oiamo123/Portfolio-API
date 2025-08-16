@@ -40,11 +40,6 @@ app.use(express.json());
 
 dotenv.config();
 
-const Projects = require("./models/Projects.js");
-const Tools = require("./models/Tools");
-const Project_Tools = require("./models/Project-Tools.js");
-const Images = require("./models/Images.js");
-const Timeline = require("./models/Timeline.js");
 const Data = require("./models/Data.js");
 
 // middleware
@@ -54,80 +49,6 @@ mongoose.connect(process.env.URI).then(() => {
 
 // handle pre-flight
 app.options("*", cors());
-
-// routes
-app.get("/api/images", async (req, res) => {
-  try {
-    const images = await Images.find({ for: "profile" }).lean();
-    if (!images) {
-      res.status(400).json({ message: "Unable to retrieve image" });
-    }
-
-    res.status(200).json(images);
-  } catch (err) {
-    res.status(400).json({ message: "An error occured" });
-  }
-});
-
-app.get("/api/timeline", async (req, res) => {
-  try {
-    const timeline = await Timeline.find({}).lean();
-    if (!timeline) {
-      res
-        .status(400)
-        .json({ message: "There was an issue receiving the timeline data" });
-    }
-
-    res.status(200).json(timeline);
-  } catch (err) {
-    res.status(400).json({ message: "An error occured" });
-  }
-});
-
-app.get("/api/skills", async (req, res) => {
-  try {
-    const tools = await Tools.find({}).lean();
-    if (!tools) {
-      res.status(400).json({ message: "There was an issue loading the tools" });
-    }
-    res.status(200).json(tools);
-  } catch (err) {
-    res.status(400).json({ message: "An error occured" });
-  }
-});
-
-app.get("/api/projects", async (req, res) => {
-  try {
-    // get projects, tools and project tools
-    const [projects, tools, project_tools] = await Promise.all([
-      Projects.find({}).lean(),
-      Tools.find({}).lean(),
-      Project_Tools.find({}).lean(),
-    ]);
-
-    const projectsAndTools = projects.map((project) => {
-      project.tools = [];
-
-      project_tools.forEach((projectTool) => {
-        if (project._id.toString() === projectTool.ProjectID.toString()) {
-          const tool = tools.find(
-            (tool) => tool._id.toString() === projectTool.ToolID.toString()
-          );
-
-          project.tools.push(tool.tool);
-        }
-      });
-
-      return project;
-    });
-
-    res.status(200).json(projectsAndTools);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "There was an issue loading the projects" });
-  }
-});
 
 app.post(
   "/api/mail",
