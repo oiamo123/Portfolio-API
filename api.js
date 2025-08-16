@@ -55,9 +55,6 @@ mongoose.connect(process.env.URI).then(() => {
 // handle pre-flight
 app.options("*", cors());
 
-// notes directory
-const notesDirectory = path.join(__dirname, "notes");
-
 // routes
 app.get("/api/images", async (req, res) => {
   try {
@@ -211,68 +208,6 @@ app.post(
     }
   }
 );
-
-// Route 1: Get all topics
-app.get("/api/notes", (req, res) => {
-  try {
-    const topics = fs
-      .readdirSync(notesDirectory)
-      .filter((dir) =>
-        fs.lstatSync(path.join(notesDirectory, dir)).isDirectory()
-      );
-
-    const posts = {};
-    topics.forEach((topic) => {
-      const postsInTopic = fs
-        .readdirSync(path.join(notesDirectory, topic))
-        .filter((file) => file.endsWith(".html"));
-
-      posts[topic] = postsInTopic;
-    });
-
-    res.status(200).json(posts);
-  } catch (err) {
-    res.status(500).json({ error: "Unable to fetch topics" });
-  }
-});
-
-// Route 2: Get posts in a topic
-app.get("/api/notes/:topic", (req, res) => {
-  const topic = req.params.topic;
-  const topicPath = path.join(notesDirectory, topic);
-
-  try {
-    const files = fs.readdirSync(topicPath);
-    const posts = files.filter(
-      (file) => file !== "index.html" && file.endsWith(".html")
-    );
-    const intro = files.includes("index.html")
-      ? fs.readFileSync(path.join(topicPath, "index.html"), "utf-8")
-      : null;
-
-    res.status(200).json({ intro, posts });
-  } catch (err) {
-    res.status(404).json({ error: `Topic '${topic}' not found` });
-  }
-});
-
-// Route 3: Get a specific post
-app.get("/api/notes/:topic/:post", (req, res) => {
-  const { topic, post } = req.params;
-  const postPath = path.join(notesDirectory, topic, `${post}.html`);
-
-  try {
-    if (!fs.existsSync(postPath)) {
-      return res
-        .status(404)
-        .json({ error: `Post '${post}' not found in topic '${topic}'` });
-    }
-    const content = fs.readFileSync(postPath, "utf-8");
-    res.status(200).json({ content });
-  } catch (err) {
-    res.status(500).json({ error: "Unable to fetch post" });
-  }
-});
 
 app.listen(process.env.PORT, () => {
   console.log("Server is listening");
